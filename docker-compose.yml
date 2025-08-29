@@ -6,26 +6,22 @@ services:
       - GF_SECURITY_ADMIN_USER=${GF_ADMIN_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${GF_ADMIN_PASSWORD}
     ports:
-      - "3000:9001"
+      - "3000:3000"
     networks:
       - monitoring_networks
     volumes:
       - grafana_data:/var/lib/grafana
     extra_hosts:
       - "host.docker.internal:host-gateway"
-  
+
   prometheus_app:
     container_name: prometheus_app
     image: prom/prometheus:v2.54.0
-    ports:
-      - "9090:9090"
+    network_mode: "host"
     volumes:
       - ./config/prometheus:/etc/prometheus
       - prometheus_data:/prometheus:Z
-    networks:
-      - monitoring_networks
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
 
   node_exporter_app:
     container_name: node_exporter_app
@@ -33,7 +29,6 @@ services:
     network_mode: "host"
     pid: "host"
     restart: unless-stopped
-
 
 networks:
   monitoring_networks:
