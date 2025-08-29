@@ -1,0 +1,43 @@
+services:
+  grafana_app:
+    container_name: grafana_app
+    image: grafana/grafana:11.2.0
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GF_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_ADMIN_PASSWORD}
+    ports:
+      - "3000:9001"
+    networks:
+      - monitoring_networks
+    volumes:
+      - grafana_data:/var/lib/grafana
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+  
+  prometheus_app:
+    container_name: prometheus_app
+    image: prom/prometheus:v2.54.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus:/etc/prometheus
+      - prometheus_data:/prometheus:Z
+    networks:
+      - monitoring_networks
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  node_exporter_app:
+    container_name: node_exporter_app
+    image: quay.io/prometheus/node-exporter:v1.8.1
+    network_mode: "host"
+    pid: "host"
+    restart: unless-stopped
+
+
+networks:
+  monitoring_networks:
+
+volumes:
+  prometheus_data:
+  grafana_data:
